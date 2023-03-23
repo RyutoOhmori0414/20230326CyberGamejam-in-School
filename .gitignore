@@ -60,3 +60,8 @@ crashlytics-build.properties
 
 .vsconfig
 UserSettings/
+Assets/Plugins/
+Assets/Resources/DOTweenSettings.asset
+Assets/Resources/DOTweenSettings.asset.meta
+Assets/Plugins.meta
+Assets/Resources.meta
