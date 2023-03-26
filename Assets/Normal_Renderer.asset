@@ -39,8 +39,8 @@ MonoBehaviour:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
   m_RendererFeatures:
   - {fileID: -4096361818332843195}
-  - {fileID: 8153303513361774120}
-  m_RendererFeatureMap: 4533cc32a1cc26c72876dfeb585a2671
+  - {fileID: 4508238417418689172}
+  m_RendererFeatureMap: 4533cc32a1cc26c7949a0279f47a903e
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_ClusteredRendering: 0
   m_TileSize: 32
   m_IntermediateTextureMode: 1
---- !u!114 &8153303513361774120
+--- !u!114 &4508238417418689172
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,9 +88,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e1ab1a1b712cbc49b51a402169edf4c, type: 3}
-  m_Name: Custom PostProcess
+  m_Name: CustomPostProcess
   m_EditorClassIdentifier: 
   m_Active: 1
   _shader: {fileID: 4800000, guid: 49802f403ac8bad4bb5576643209152e, type: 3}
   _timing: 0
-  _applyToSceneView: 1
+  _applyToSceneView: 0
