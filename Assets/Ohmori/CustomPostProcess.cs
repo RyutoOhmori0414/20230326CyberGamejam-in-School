@@ -1,27 +1,23 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
+[System.Serializable]
 public class CustomPostProcess : ScriptableRendererFeature
 {
-    [System.Serializable]
-    public class CustomPostProcessSettings
-    {
-        public RenderPassEvent Event = RenderPassEvent.BeforeRenderingPostProcessing;
-        public Shader Shader;
-    }
+    [SerializeField] private Shader _shader;
+    [SerializeField] private PostprocessTiming _timing = PostprocessTiming.AfterOpaque;
+    [SerializeField] private bool _applyToSceneView = true;
 
-    public CustomPostProcessSettings settings;
-    public CustomPostProcessPass pass;
+    private CustomPostProcessPass _postProcessPass;
 
     public override void Create()
     {
-        this.name = "Custom PostProcess";
-        pass = new CustomPostProcessPass(settings.Event, settings.Shader);
+        _postProcessPass = new CustomPostProcessPass(_applyToSceneView, _shader);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        pass.Setup(renderer.cameraColorTarget, RenderTargetHandle.CameraTarget);
-        renderer.EnqueuePass(pass);
+        _postProcessPass.Setup(renderer.cameraColorTarget, _timing);
+        renderer.EnqueuePass(_postProcessPass);
     }
 }
