@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class PlayerInputManager 
+public class PlayerInputManager
 {
     [Header("ƒvƒŒƒCƒ„[‚Ì”Ô†")]
     [Range(1, 2)]
@@ -15,13 +15,16 @@ public class PlayerInputManager
 
     private bool _isAttack = false;
 
+    private int _beforHorizontal = 1;
+
     public float HorizontalMove => _horizontalMove;
 
     public float VerticalMove => _verticalMove;
 
     public int PlayerNumber => _playerNumber;
 
-    private bool IsAttack => _isAttack;
+    public bool IsAttack => _isAttack;
+    public int BeforHorizontal => _beforHorizontal;
 
     private PlayerControl _playerControl;
 
@@ -30,18 +33,39 @@ public class PlayerInputManager
         _playerControl = playerControl;
     }
 
-   public void Update()
+    public void Update()
     {
 
         if (_playerNumber == 1)
         {
             _horizontalMove = Input.GetAxisRaw("Horizontal1");
             _verticalMove = Input.GetAxisRaw("Vertical1");
+
+            if (_horizontalMove > 0)
+            {
+                _beforHorizontal = 1;
+            }
+            else if (_horizontalMove < 0)
+            {
+                _beforHorizontal = -1;
+            }
+
+            _isAttack = Input.GetButtonDown("Jump");
         }
         else if (_playerNumber == 2)
         {
             _horizontalMove = Input.GetAxisRaw("Horizontal2");
             _verticalMove = Input.GetAxisRaw("Vertical2");
+
+            if (_horizontalMove > 0)
+            {
+                _beforHorizontal = 1;
+            }
+            else if (_horizontalMove < 0)
+            {
+                _beforHorizontal = -1;
+            }
+            _isAttack = Input.GetButtonDown("IsAttack2");
         }
 
 
