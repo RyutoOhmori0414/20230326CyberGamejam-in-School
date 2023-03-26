@@ -34,6 +34,11 @@ public class PlayerAnimControl
         }
     }
 
+    public void GetBoard()
+    {
+        _playerControl.Anim.SetTrigger("IsGetBoard");
+    }
+
     public void DirSet()
     {
         bool isSignBoard = _playerControl.SignBoardCheck.CheckSignboard();

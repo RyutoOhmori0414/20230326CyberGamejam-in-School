@@ -75,7 +75,6 @@ public class PlayerControl : MonoBehaviour
 
         _animControl.ParametaSet();
 
-
     }
 
     private void FixedUpdate()
