@@ -17,7 +17,7 @@ public class GaugeManajer : MonoBehaviour,IGauge
     public float Current2Slider;
     public bool _reset2;
 
-    public void  Gauge(int PlayerNumber)
+    public float  Gauge(int PlayerNumber)
     {
         if(PlayerNumber == 1 && Current1Slider < 100)
         {   
@@ -47,6 +47,8 @@ public class GaugeManajer : MonoBehaviour,IGauge
             _P1slider.value = (float)Current1Slider / (float)Max1Slider;
             _P1slider.transform.SetAsLastSibling();
         }
+
+        return Current1Slider;
     }
     void Reeset()
     {

@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IGauge
 {
-        void Gauge(float PlayerNumber);   
+        float Gauge(int PlayerNumber);   
 }
