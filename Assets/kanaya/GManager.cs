@@ -25,7 +25,7 @@ public class GManager : MonoBehaviour
     [Header("現在の時間"), SerializeField]
     float _spanTime;
 
-    [Header("現在の得点"), SerializeField]
+    [Header("それぞれの現在の得点"), SerializeField]
     float[] _score;
 
     [Header("何秒ごとか"), SerializeField]
@@ -33,6 +33,9 @@ public class GManager : MonoBehaviour
 
     [Header("現在の時間"), SerializeField]
     float _scoreGetTime;
+
+    [Header("それぞれの看板の数"), SerializeField]
+    int[] _signboard;
 
     bool _isGame;
 
@@ -127,6 +130,8 @@ public class GManager : MonoBehaviour
 
     }
 
+    /// <summary>スコアを追加する</summary>
+    /// <param name="id">どのプレイヤーに</param>
     public void Score(int id)
     {
         if (_isGame)
@@ -134,9 +139,9 @@ public class GManager : MonoBehaviour
             if (_isFever)
             {
                 Debug.Log("フィーバー中");
-                if (_scoreGetTime > _scoreGetSpan)
+                if (_scoreGetTime > _scoreGetSpan / 2)
                 {
-                    AddScore(1 * 2/*看板の数×2*/, id);
+                    AddScore(_signboard[id]/*看板の数*/, id);
                     _scoreGetTime = 0;
                 }
                 else
@@ -148,7 +153,7 @@ public class GManager : MonoBehaviour
             {
                 if (_scoreGetTime > _scoreGetSpan)
                 {
-                    AddScore(1/*看板の数*/, id);
+                    AddScore(_signboard[id]/*看板の数*/, id);
                     _scoreGetTime = 0;
                 }
                 else
@@ -157,11 +162,27 @@ public class GManager : MonoBehaviour
                 }
             }
         }
-
     }
 
+    /// <summary>スコアを追加</summary>
+    /// <param name="score">手に入れたスコア</param>
+    /// <param name="id">どのプレイヤーに</param>
     public void AddScore(float score, int id)
     {
         _score[id] += score;
+    }
+
+    /// <summary>看板の数を追加</summary>
+    /// <param name="id">どのプレイヤーに</param>
+    public void  AddSignboard(int id)
+    {
+        _signboard[id] += 1;
+    }
+
+    /// <summary>看板の数を削減</summary>
+    /// <param name="id">どのプレイヤーに</param>
+    public void ReductionSignboard(int id)
+    {
+        _signboard[id] -= 1;
     }
 }
