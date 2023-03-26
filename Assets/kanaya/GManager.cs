@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GManager : MonoBehaviour
+public class GManager : SingletonMonoBehaviour<GManager>
 {
     [Header("現在フィーバーであるか"), SerializeField]
     bool _isFever;
@@ -51,7 +51,8 @@ public class GManager : MonoBehaviour
     {
         Timer();
         FeverTime();
-        Score(1); //本来は看板を持っていたらよぶ
+        Score(0);
+        Score(1);
     }
 
 
