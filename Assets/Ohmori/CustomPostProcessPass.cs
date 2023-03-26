@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,70 +6,115 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+public enum PostprocessTiming
+{
+    AfterOpaque,
+    BeforePostprocess,
+    AfterPostprocess
+}
+
 public class CustomPostProcessPass : ScriptableRenderPass
 {
-    const string k_RenderCustomPostProcessingTag = "Render Custom PostProcessing Effects";
-    private RenderTargetIdentifier passSource;
-    private RenderTargetHandle passDestination;
+    private const string RenderPassName = nameof(CustomPostProcessPass);
+    private const string ProfilingSamplerName = "SrcToDest";
 
-    private Material material;
-    RenderTargetHandle _TemporaryColorTexture;
+    private readonly bool _applyToSceneView;
+    private readonly int _mainTexPropertyId = Shader.PropertyToID("_MainTex");
+    private readonly Material _material;
+    private readonly ProfilingSampler _profilingSampler;
+    private readonly int _lineColorId = Shader.PropertyToID("_LineColor");
+    private readonly int _lineSpeedId = Shader.PropertyToID("_LineSpeed");
+    private readonly int _lineSizeId = Shader.PropertyToID("_LineSize");
+    private readonly int _colorGapId = Shader.PropertyToID("_ColorGap");
+    private readonly int _frameRateId = Shader.PropertyToID("_FrameRate");
+    private readonly int _frequencyId = Shader.PropertyToID("_Frequency");
+    private readonly int _glitchScaleId = Shader.PropertyToID("_GlitchScale");
 
-    public CustomPostProcessPass(RenderPassEvent renderPassEvent, Shader shader)
+    private RenderTargetHandle _afterPostProcessTexture;
+    private RenderTargetIdentifier _cameraColorTarget;
+    private RenderTargetHandle _tempRenderTargetHandle;
+    private GlitchVolume _volume;
+
+
+    public CustomPostProcessPass(bool applyToSceneView, Shader shader)
     {
-        this.renderPassEvent = renderPassEvent;
-        if (shader)
+        if (shader == null)
         {
-            material = new Material(shader);
+            return;
         }
 
-        _TemporaryColorTexture.Init("_TemporaryColorTexture");
+        _applyToSceneView = applyToSceneView;
+        _profilingSampler = new ProfilingSampler(ProfilingSamplerName);
+        _tempRenderTargetHandle.Init("_TempRT");
+
+        _material = CoreUtils.CreateEngineMaterial(shader);
+        _afterPostProcessTexture.Init("_AfterPostProcessTexture");
     }
 
-    public void Setup(RenderTargetIdentifier source, RenderTargetHandle destination)
+    public void Setup(RenderTargetIdentifier cameraColorTarget, PostprocessTiming timing)
     {
-        this.passSource = source;
-        this.passDestination = destination;
+        _cameraColorTarget = cameraColorTarget;
+        renderPassEvent = GetRenderPassEvent(timing);
+        var volumeStack = VolumeManager.instance.stack;
+        _volume = volumeStack.GetComponent<GlitchVolume>();
     }
+
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
-        RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
-        opaqueDesc.depthBufferBits = 0;
+        if (!_material || !renderingData.cameraData.postProcessEnabled ||
+            (!_applyToSceneView && renderingData.cameraData.cameraType == CameraType.SceneView) ||
+            !_volume.IsActive())
+        {
+            return;
+        }
 
-        var cmd = CommandBufferPool.Get(k_RenderCustomPostProcessingTag);
+        var source = renderPassEvent == RenderPassEvent.AfterRendering && renderingData.cameraData.resolveFinalTarget
+            ? _afterPostProcessTexture.Identifier()
+            : _cameraColorTarget;
 
-        Render(cmd, ref renderingData, opaqueDesc);
+        var cmd = CommandBufferPool.Get(RenderPassName);
+        cmd.Clear();
+
+        var tempTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
+        tempTargetDescriptor.depthBufferBits = 0;
+        cmd.GetTemporaryRT(_tempRenderTargetHandle.id, tempTargetDescriptor);
+
+        using (new UnityEngine.Rendering.ProfilingScope(cmd, _profilingSampler))
+        {
+            // VolumeからTintColorを取得して反映
+            _material.SetColor(_lineColorId, _volume.LineColorParamator.value);
+            _material.SetFloat(_lineSpeedId, _volume.LineSpeedParamator.value);
+            _material.SetFloat(_lineSizeId, _volume.LineSizeParamator.value);
+            _material.SetFloat(_colorGapId, _volume.ColorGapParamater.value);
+            _material.SetFloat(_frameRateId, _volume.FrameRateParamater.value);
+            _material.SetFloat(_frequencyId, _volume.FrequencyParamater.value);
+            _material.SetFloat(_glitchScaleId, _volume.GlitchScaleParamater.value);
+            cmd.SetGlobalTexture(_mainTexPropertyId, source);
+
+            // 元のテクスチャから一時的なテクスチャにエフェクトを適用しつつ描画
+            Blit(cmd, source, _tempRenderTargetHandle.Identifier(), _material);
+        }
+
+        Blit(cmd, _tempRenderTargetHandle.Identifier(), source);
+
+        cmd.ReleaseTemporaryRT(_tempRenderTargetHandle.id);
 
         context.ExecuteCommandBuffer(cmd);
         CommandBufferPool.Release(cmd);
     }
 
-    void Render(CommandBuffer cmd, ref RenderingData renderingData, RenderTextureDescriptor opaqueDesc)
+    private static RenderPassEvent GetRenderPassEvent(PostprocessTiming postprocessTiming)
     {
-        cmd.GetTemporaryRT(_TemporaryColorTexture.id, opaqueDesc, FilterMode.Bilinear);
-
-        DoShaderEffect(cmd, passSource, _TemporaryColorTexture, opaqueDesc);
-
-        if (passDestination == RenderTargetHandle.CameraTarget)
+        switch (postprocessTiming)
         {
-            Blit(cmd, _TemporaryColorTexture.Identifier(), passSource);
-        }
-        else
-        {
-            Blit(cmd, _TemporaryColorTexture.Identifier(), passDestination.Identifier());
-        }
-    }
-
-    private void DoShaderEffect(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetHandle destination, RenderTextureDescriptor opaqueDesc)
-    {
-        Blit(cmd, source, destination.Identifier(), material, 0);
-    }
-
-    public override void FrameCleanup(CommandBuffer cmd)
-    {
-        if (passDestination == RenderTargetHandle.CameraTarget)
-        {
-            cmd.ReleaseTemporaryRT(_TemporaryColorTexture.id);
+            case PostprocessTiming.AfterOpaque:
+                return RenderPassEvent.AfterRenderingSkybox;
+            case PostprocessTiming.BeforePostprocess:
+                return RenderPassEvent.BeforeRenderingPostProcessing;
+            case PostprocessTiming.AfterPostprocess:
+                return RenderPassEvent.AfterRendering;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(postprocessTiming), postprocessTiming, null);
         }
     }
 }
