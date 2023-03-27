@@ -40,7 +40,7 @@ public class PlayerAnimControl
 
     public void DamageAnim(bool isDamage)
     {
-        _playerControl.Anim.SetBool("IsDamage",isDamage);
+        _playerControl.Anim.SetBool("IsDamage", isDamage);
     }
 
     public void AttackAnim()
@@ -60,10 +60,12 @@ public class PlayerAnimControl
         var v = _playerControl.InputManager.VerticalMove;
 
 
-        bool isSignBoard = _playerControl.SignBoardCheck.CheckSignboard();
+            bool isSignBoard = _playerControl.SignBoardCheck.CheckSignboard();
 
-        if (h == 0 && v==0)
+        if (h == 0 && v == 0)
         {
+
+
             if (isSignBoard)
             {
                 _playerControl.ModelT.forward = -_playerControl.PlayerT.right;

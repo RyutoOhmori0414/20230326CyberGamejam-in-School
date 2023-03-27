@@ -183,15 +183,6 @@ public class GaugeManajer : MonoBehaviour,IGauge
 
     
 
-    // Update is called once per frame
-    void Update()
-    {
-
-        //â¡éZÇ∑ÇÈ
-        GManager.Instance.AddSignboard(1);//0 or 1Ç≈
-        //å∏è≠Ç∑ÇÈ
-        GManager.Instance.ReductionSignboard(1);//0 or 1Ç≈
-    }
 
     void Start()
     {
