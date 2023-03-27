@@ -81,7 +81,7 @@ Shader "Custom/PostEffect"
                 ba.x *= ba.y;
                 float2 ga = tex2D(_MainTex, uv).ga + _TextureSampleAdd.ga;
                 ga.x *= ga.y;
-                float4 shiftColor = float4(ra.x, ba.x, ga.x, (ra.y + ga.y + ba.y) / 3);
+                float4 shiftColor = float4(ra.x, ga.x, ba.x, (ra.y + ga.y + ba.y) / 3);
                 //ノズルラインの補完値の計算
                 float interpolation = step(frac(i.line_uv.y * 15), _LineSize);
                 //ノズルラインを含むピクセルカラー

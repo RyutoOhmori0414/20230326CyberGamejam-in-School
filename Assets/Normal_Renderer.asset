@@ -93,4 +93,4 @@ MonoBehaviour:
   m_Active: 1
   _shader: {fileID: 4800000, guid: 49802f403ac8bad4bb5576643209152e, type: 3}
   _timing: 0
-  _applyToSceneView: 0
+  _applyToSceneView: 1
