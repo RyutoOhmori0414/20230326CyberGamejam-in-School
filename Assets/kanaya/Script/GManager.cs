@@ -7,48 +7,68 @@ using UnityEngine.UI;
 public class GManager : SingletonMonoBehaviour<GManager>
 {
     [Header("現在フィーバーであるか"), SerializeField]
-    bool _isFever;
+    private bool _isFever;
+
+    [Header("ゲームが進行しているか"), SerializeField]
+    private　bool _isGame;
 
     [Header("通行人"), SerializeField]
-    GameObject _passerby;
+    private GameObject _passerby;
 
     [Header("ゲームの制限時間"), SerializeField]
-    float _timer;
+    private float _timer;
 
     [Header("フィーバーの有効時間"), SerializeField]
-    float _feverTime;
+    private float _feverTime;
 
     [Header("現在のフィーバー時間"), SerializeField]
-    float _feverTimer;
+    private float _feverTimer;
 
     [Header("何秒ごとか"), SerializeField]
-    float _feverSpan;
+    private float _feverSpan;
 
     [Header("現在の時間"), SerializeField]
-    float _spanTime;
+    private float _spanTime;
 
+    //プレイヤー１は[0],プレイヤー２は[1]でお願いします
     [Header("それぞれの現在の得点"), SerializeField]
-    float[] _score;
+    private float[] _score;
 
     [Header("スコアを何秒ごとにゲットするか"), SerializeField]
-    float _scoreGetSpan;
+    private float _scoreGetSpan;
 
     [Header("スコアをゲットする現在の時間"), SerializeField]
-    float _scoreGetTime;
+    private float _scoreGetTime;
 
     [Header("それぞれの看板の数"), SerializeField]
-    int[] _signboard;
+    private int[] _signboard;
 
-    [SerializeField]
-    private UnityEvent _endEvent;
-
+    //プレイヤー１は[0],プレイヤー２は[1]でお願いします
     [Header("得点テキスト"), SerializeField]
-    Text[] _scoreText;
+    private Text[] _scoreText;
 
     [Header("タイマーテキスト"), SerializeField]
-    Text _timerText;
+    private Text _timerText;
 
-    bool _isGame;
+    [Header("リザルトパネル"), SerializeField]
+    private GameObject _resultPanel;
+
+    //プレイヤー１は[0],プレイヤー２は[1]でお願いします
+    [Header("プレイヤーリザルトスプライト"), SerializeField]
+    private Sprite[] _playerSprite;
+
+    [Header("勝利スプライト"), SerializeField]
+    private Sprite _winSprite;
+
+    [Header("敗北スプライト"), SerializeField]
+    private Sprite _loseSprite;
+
+    //プレイヤー１は[0],プレイヤー２は[1]でお願いします
+    [Header("リザルトスコアテキスト"), SerializeField]
+    private Text[] _resultScoreText;
+
+    [Header("UnityEvent"), SerializeField]
+    private UnityEvent _endEvent;
 
     int _num;
 
@@ -56,6 +76,7 @@ public class GManager : SingletonMonoBehaviour<GManager>
     {
         _isGame = true;
         _passerby.SetActive(false);
+        _resultPanel.SetActive(false);        
     }
 
     void Update()
@@ -90,6 +111,7 @@ public class GManager : SingletonMonoBehaviour<GManager>
             _isGame = false;
             Debug.Log("ゲーム終了");
             _endEvent.Invoke();
+            Result();
         }
         else
         {
@@ -203,4 +225,29 @@ public class GManager : SingletonMonoBehaviour<GManager>
     {
         _signboard[id] -= 1;
     }
+
+    /// <summary>結果を表示</summary>
+    public void Result()
+    {
+        _resultPanel.SetActive(true);
+        _resultScoreText[0].text = _score[0].ToString();
+        _resultScoreText[1].text = _score[1].ToString();
+
+        if (_score[0] == _score[1])
+        {
+            //引き分け
+        }
+        else if(_score[0] > _score[1]) //プレイヤー１のスコアの方が多い
+        {
+            _playerSprite[0] = _winSprite;
+            _playerSprite[1] = _loseSprite;
+        }
+        else　
+        {
+            _playerSprite[0] = _loseSprite;
+            _playerSprite[1] = _winSprite;
+        }
+
+    }
+
 }
