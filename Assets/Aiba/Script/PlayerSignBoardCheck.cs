@@ -12,7 +12,11 @@ public class PlayerSignBoardCheck
 
     [SerializeField] private LayerMask _layerMaskSignBoard;
 
+    [SerializeField] private Vector3 _posAdd = default;
+
     private RaycastHit _raycastHitSignboard;
+
+    private RaycastHit _raycastHitSignboardLeft;
 
     private bool _isGetBoard = false;
 
@@ -28,24 +32,66 @@ public class PlayerSignBoardCheck
     /// <summary>ä≈î¬ÇíTÇ∑</summary>
     public bool CheckSignboard()
     {
+        //åvë™
+        CountGodTime();
         if (!_isGetBoard)
         {
-            bool isHit = Physics.Raycast(_playerControl.PlayerT.position, -_playerControl.PlayerT.right, out _raycastHitSignboard, _rayMaxLong, _layerMaskSignBoard);
+            bool isHit = Physics.Linecast(_playerControl.PlayerT.position+ _posAdd, _posAdd+_playerControl.ModelT.right*100, out _raycastHitSignboard,_layerMaskSignBoard);
 
-            Debug.Log(isHit);
+            bool isHitLeft = Physics.Linecast(_playerControl.PlayerT.position+ _posAdd, _posAdd +- _playerControl.ModelT.right * 100, out _raycastHitSignboardLeft, _layerMaskSignBoard);
+
+            Debug.Log($"{_playerControl.InputManager.PlayerNumber}âE):{isHit}");
+            Debug.Log($"{_playerControl.InputManager.PlayerNumber}ç∂):{isHitLeft}");
 
             if (isHit)
             {
-                _raycastHitSignboard.collider.gameObject.GetComponent<IGauge>()?.Gauge(_playerControl.InputManager.PlayerNumber);
 
-                if (true)
+                _raycastHitSignboard.collider.gameObject.TryGetComponent<IGauge>(out IGauge gage);
+
+                float num = 0;
+
+                if (gage != null)
+                {
+                    num = gage.Gauge(_playerControl.InputManager.PlayerNumber);
+                }
+
+
+
+                if (num == 100)
                 {
                     _isGetBoard = true;
                     _playerControl.AnimControl.GetBoard();
                 }
+
+                return true;
+            }
+            else if (isHitLeft)
+            {
+                _raycastHitSignboardLeft.collider.gameObject.TryGetComponent<IGauge>(out IGauge gage);
+
+                float num = 0;
+
+                if (gage != null)
+                {
+                    num = gage.Gauge(_playerControl.InputManager.PlayerNumber);
+                }
+
+
+
+                if (num == 100)
+                {
+                    _isGetBoard = true;
+                    _playerControl.AnimControl.GetBoard();
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
-            return true;
+
         }
         else
         {
@@ -56,7 +102,7 @@ public class PlayerSignBoardCheck
 
     public void CountGodTime()
     {
-        if(_isGetBoard)
+        if (_isGetBoard)
         {
             _countGodTime += Time.deltaTime;
 
@@ -68,5 +114,11 @@ public class PlayerSignBoardCheck
         }
     }
 
+    public void OnDrawGizmos(Transform player, Transform model)
+    {
+        Gizmos.color = Color.green;
 
+       // Gizmos.DrawLine(player.position+ _posAdd, player.position + _posAdd + (-model.right * 10));
+        //Gizmos.DrawLine(player.position+ _posAdd, player.position + _posAdd + (model.right * 10));
+    }
 }

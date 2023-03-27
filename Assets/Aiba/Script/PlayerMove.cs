@@ -19,6 +19,10 @@ public class PlayerMove
 
     private PlayerControl _playerControl;
 
+    private float _timeCount = 0;
+
+    private float _timeCountMove = 0;
+
     public void Init(PlayerControl playerControl)
     {
         _playerControl = playerControl;
@@ -27,14 +31,98 @@ public class PlayerMove
 
     public void Move()
     {
-        _playerControl.Rb.AddForce(_playerControl.PlayerDir.MoveDir * _moveSpeedX * _playerControl.InputManager.HorizontalMove);
-        _playerControl.Rb.AddForce(_playerControl.PlayerT.up * _moveSpeedY * _playerControl.InputManager.VerticalMove);
+        if (!_playerControl.Attack.IsDamage)
+        {
+            if (!_playerControl.SignBoardCheck.IsGetBoard)
+            {
+                Vector3 velo = (_playerControl.PlayerDir.MoveDir * _moveSpeedX * _playerControl.InputManager.HorizontalMove);
+                velo.y =_playerControl.InputManager.VerticalMove*3;
+                _playerControl.Rb.velocity = velo;
+            }
+        }
+
+
+        //if (!_playerControl.Attack.IsDamage)
+        //{
+        //    if (!_playerControl.SignBoardCheck.IsGetBoard)
+        //    {
+
+        //        //c•ûŒü‚Ì“ü—Í
+        //        if (_playerControl.InputManager.VerticalMove != 0)
+        //        {
+        //            _playerControl.Rb.AddForce(_playerControl.PlayerT.up * _moveSpeedY * _playerControl.InputManager.VerticalMove);
+        //        }
+
+        //        if (_playerControl.InputManager.HorizontalMove != 0)
+        //        {
+
+
+        //            _timeCountMove += Time.deltaTime;
+        //            if (_timeCountMove >= 1)
+        //            {
+        //                _timeCountMove = 1;
+        //            }
+
+
+
+        //            Vector3 velo = (_playerControl.PlayerDir.MoveDir * _timeCountMove * _moveSpeedX * _playerControl.InputManager.HorizontalMove);
+        //            velo.y = _playerControl.Rb.velocity.y;
+        //            _playerControl.Rb.velocity = velo;
+
+        //            _timeCount = 0;
+        //        }
+        //        else
+        //        {
+        //            _timeCountMove = 0;
+
+        //            float speed = 0;
+
+        //            if (_playerControl.Rb.velocity == Vector3.zero)
+        //            {
+        //                return;
+        //            }
+
+        //            if (_playerControl.InputManager.BeforHorizontal == 1)
+        //            {
+        //                speed = _playerControl.Rb.velocity.x - _timeCount;
+
+        //                if (speed < 0)
+        //                {
+        //                    speed = 0;
+        //                    return;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                speed = _playerControl.Rb.velocity.x + _timeCount;
+        //                speed = -speed;
+        //                if (speed < 0)
+        //                {
+        //                    speed = 0;
+        //                    return;
+        //                }
+        //            }
+
+
+        //            Vector3 velo = (_playerControl.PlayerDir.MoveDir * speed * _playerControl.InputManager.BeforHorizontal);
+        //            velo.y = _playerControl.Rb.velocity.y;
+        //            _playerControl.Rb.velocity = velo;
+
+
+        //            _timeCount += Time.deltaTime * 2;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        _playerControl.Rb.velocity = Vector3.zero;
+        //    }
+        //}
     }
 
     public void LimitSpeed()
     {
         //X‚Ì‘¬“x§ŒÀ
-        if(_playerControl.Rb.velocity.x>_moveSpeedLimitX)
+        if (_playerControl.Rb.velocity.x > _moveSpeedLimitX)
         {
             _playerControl.Rb.velocity = new Vector3(_moveSpeedLimitX, _playerControl.Rb.velocity.y, _playerControl.Rb.velocity.z);
         }
