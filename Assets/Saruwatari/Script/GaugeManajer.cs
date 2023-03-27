@@ -25,6 +25,13 @@ public class GaugeManajer : MonoBehaviour,IGauge
     [SerializeField,Header("ゲージの速さ")]
     public int x;
 
+    [SerializeField, Header("Player1看板")]
+    public Texture P1;
+    [SerializeField, Header("Player2看板")]
+    public Texture P2;
+    [SerializeField, Header("エフェクト")]
+    ParticleSystem particle;
+
     public float  Gauge(int PlayerNumber)
     {
         //1
@@ -44,6 +51,7 @@ public class GaugeManajer : MonoBehaviour,IGauge
                     isNotGet = false;
                     isNotGetP1 = true;
                     GManager.Instance.AddSignboard(0);
+                    GetComponent<Renderer>().material.mainTexture = P1;
                     return 100;
                 }
                 else
@@ -81,6 +89,7 @@ public class GaugeManajer : MonoBehaviour,IGauge
                         _P2slider.transform.SetAsLastSibling();
                         GManager.Instance.AddSignboard(0);
                         GManager.Instance.ReductionSignboard(1);
+                        GetComponent<Renderer>().material.mainTexture = P1;
                         return 100;
                     }
                 }
@@ -104,6 +113,7 @@ public class GaugeManajer : MonoBehaviour,IGauge
                     isNotGet = false;
                     isNotGetP1 = false;
                     GManager.Instance.AddSignboard(1);
+                    GetComponent<Renderer>().material.mainTexture = P2;
                     return 100;
                 }
                 else
@@ -140,6 +150,8 @@ public class GaugeManajer : MonoBehaviour,IGauge
                         _P1slider.transform.SetAsLastSibling();
                         GManager.Instance.AddSignboard(1);
                         GManager.Instance.ReductionSignboard(0);
+                        GetComponent<Renderer>().material.mainTexture = P2;
+                        return 100;
                     }
                 }
             }
@@ -179,13 +191,15 @@ public class GaugeManajer : MonoBehaviour,IGauge
     }
     
 
-    
 
-    
-
+    void Update()
+    {
+        
+    }
 
     void Start()
     {
+        particle = this.GetComponent<ParticleSystem>();
         isNotGet = true;
     }
 
