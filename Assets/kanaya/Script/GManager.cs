@@ -55,7 +55,7 @@ public class GManager : SingletonMonoBehaviour<GManager>
 
     //プレイヤー１は[0],プレイヤー２は[1]でお願いします
     [Header("プレイヤーリザルトスプライト"), SerializeField]
-    private Sprite[] _playerSprite;
+    private Image[] _playerSprite;
 
     [Header("勝利スプライト"), SerializeField]
     private Sprite _winSprite;
@@ -239,13 +239,13 @@ public class GManager : SingletonMonoBehaviour<GManager>
         }
         else if(_score[0] > _score[1]) //プレイヤー１のスコアの方が多い
         {
-            _playerSprite[0] = _winSprite;
-            _playerSprite[1] = _loseSprite;
+            _playerSprite[0].sprite = _winSprite;
+            _playerSprite[1].sprite = _loseSprite;
         }
         else　
         {
-            _playerSprite[0] = _loseSprite;
-            _playerSprite[1] = _winSprite;
+            _playerSprite[0].sprite = _loseSprite;
+            _playerSprite[1].sprite = _winSprite;
         }
 
     }
