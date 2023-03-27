@@ -100,7 +100,9 @@ Shader "Custom/PostEffect"
                 ////グリッチ適用
                 //uv.x = lerp(uv.x, uv.x + noiseX * _GlitchScale, glitch);
                 float4 noiseColor = tex2D(_MainTex, uv) + _TextureSampleAdd;
-                float4 finalColor = noiseLineColor * noiseColor;
+                noiseLineColor.rgb *= noiseLineColor.a;
+                noiseColor *= 1 - noiseLineColor.a;
+                float4 finalColor = noiseLineColor + noiseColor;
 
                 return finalColor;
             }
