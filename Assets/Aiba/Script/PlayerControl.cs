@@ -60,6 +60,7 @@ public class PlayerControl : MonoBehaviour, IDamageble
         _playerDir.Init(this);
         _cameraControl.Init(this);
         _attack.Init(this);
+
     }
 
     void Start()
@@ -94,6 +95,8 @@ public class PlayerControl : MonoBehaviour, IDamageble
 
         //ë¨ìxêßå¿
         _move.LimitSpeed();
+
+        _signBoardCheck.Call();
     }
 
     private void FixedUpdate()
