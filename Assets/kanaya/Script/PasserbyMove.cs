@@ -27,6 +27,7 @@ public class PasserbyMove : MonoBehaviour
         Jump();
     }
 
+
     public void Jump()
     {
         if(_timer > _timeSpan)
