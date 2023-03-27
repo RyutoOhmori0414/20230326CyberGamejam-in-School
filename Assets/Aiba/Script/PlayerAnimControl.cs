@@ -11,6 +11,10 @@ public class PlayerAnimControl
 
     private PlayerControl _playerControl;
 
+    private bool _isGettingBoard = false;
+
+    public bool IsGettingBoard => _isGettingBoard;
+
     public void Init(PlayerControl playerControl)
     {
         _playerControl = playerControl;
@@ -21,7 +25,7 @@ public class PlayerAnimControl
     {
         if (_playerControl.Anim != null)
         {
-            _playerControl.Anim.SetFloat("SpeedX", _playerControl.Rb.velocity.x);
+            _playerControl.Anim.SetFloat("SpeedX", _playerControl.Rb.velocity.magnitude);
             _playerControl.Anim.SetFloat("SpeedY", _playerControl.Rb.velocity.x);
         }
     }
@@ -34,6 +38,17 @@ public class PlayerAnimControl
         }
     }
 
+    public void DamageAnim(bool isDamage)
+    {
+        _playerControl.Anim.SetBool("IsDamage", isDamage);
+    }
+
+    public void AttackAnim()
+    {
+        _playerControl.Anim.SetTrigger("IsAttack");
+    }
+
+
     public void GetBoard()
     {
         _playerControl.Anim.SetTrigger("IsGetBoard");
@@ -41,32 +56,43 @@ public class PlayerAnimControl
 
     public void DirSet()
     {
-        bool isSignBoard = _playerControl.SignBoardCheck.CheckSignboard();
+        var h = _playerControl.InputManager.HorizontalMove;
+        var v = _playerControl.InputManager.VerticalMove;
 
-        _playerControl.AnimControl.SetSignBoard(isSignBoard);
 
-        if (isSignBoard)
+            bool isSignBoard = _playerControl.SignBoardCheck.CheckSignboard();
+
+        if (h == 0 && v == 0)
         {
-            _playerControl.ModelT.forward = -_playerControl.PlayerT.right;
+
+
+            if (isSignBoard)
+            {
+                _playerControl.ModelT.forward = -_playerControl.PlayerT.right;
+                _isGettingBoard = true;
+                _playerControl.AnimControl.SetSignBoard(isSignBoard);
+            }
         }
         else
         {
-            if (_playerControl.InputManager.HorizontalMove != 0)
+
+            Vector3 dir = _playerControl.WallCheck.CheckWallToMoveDir(_playerControl.PlayerT.forward);
+
+            if (_playerControl.InputManager.HorizontalMove == -1)
             {
-                Vector3 dir = _playerControl.WallCheck.CheckWallToMoveDir(_playerControl.PlayerT.forward);
-
-                if (_playerControl.InputManager.HorizontalMove == -1)
-                {
-                    dir = -dir;
-                }
-
-                _playerControl.ModelT.forward = dir.normalized;
+                dir = -dir;
             }
+
+            _playerControl.ModelT.forward = dir.normalized;
+
+
+            _playerControl.AnimControl.SetSignBoard(false);
+            _isGettingBoard = false;
         }
-
-
-
     }
+
+
+
 
 
 

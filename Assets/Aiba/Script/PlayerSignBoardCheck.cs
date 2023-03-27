@@ -12,11 +12,20 @@ public class PlayerSignBoardCheck
 
     [SerializeField] private LayerMask _layerMaskSignBoard;
 
+    [SerializeField] private Vector3 _posAdd = default;
+
     private RaycastHit _raycastHitSignboard;
+
+    private RaycastHit _raycastHitSignboardLeft;
 
     private bool _isGetBoard = false;
 
     private float _countGodTime = 0;
+
+    private bool _isCall = false;
+
+    private IGauge _gauge;
+
 
     public bool IsGetBoard => _isGetBoard;
     private PlayerControl _playerControl;
@@ -25,27 +34,82 @@ public class PlayerSignBoardCheck
         _playerControl = playerControl;
     }
 
-    /// <summary>ä≈î¬ÇíTÇ∑</summary>
-    public bool CheckSignboard()
+
+    public void Call()
     {
-        if (!_isGetBoard)
+        var h = _playerControl.InputManager.HorizontalMove;
+        var v = _playerControl.InputManager.VerticalMove;
+
+        if (h != 0 || v != 0)
         {
-            bool isHit = Physics.Raycast(_playerControl.PlayerT.position, -_playerControl.PlayerT.right, out _raycastHitSignboard, _rayMaxLong, _layerMaskSignBoard);
+            _isCall = false;
+        }
 
-            Debug.Log(isHit);
 
-            if (isHit)
+        if (_isCall)
+        {
+
+            if (_gauge != null)
             {
-                _raycastHitSignboard.collider.gameObject.GetComponent<IGauge>()?.Gauge(_playerControl.InputManager.PlayerNumber);
+                float num = _gauge.Gauge(_playerControl.InputManager.PlayerNumber);
 
-                if (true)
+                if (num == 100)
                 {
                     _isGetBoard = true;
                     _playerControl.AnimControl.GetBoard();
                 }
             }
 
-            return true;
+        }
+    }
+
+    /// <summary>ä≈î¬ÇíTÇ∑</summary>
+    public bool CheckSignboard()
+    {
+        //åvë™
+        CountGodTime();
+        if (!_isGetBoard)
+        {
+            bool isHit = Physics.Linecast(_playerControl.PlayerT.position + _posAdd, _posAdd + _playerControl.ModelT.right * 100, out _raycastHitSignboard, _layerMaskSignBoard);
+
+            bool isHitLeft = Physics.Linecast(_playerControl.PlayerT.position + _posAdd, _posAdd + -_playerControl.ModelT.right * 100, out _raycastHitSignboardLeft, _layerMaskSignBoard);
+
+            Debug.Log($"{_playerControl.InputManager.PlayerNumber}âE):{isHit}");
+            Debug.Log($"{_playerControl.InputManager.PlayerNumber}ç∂):{isHitLeft}");
+
+            if (isHit)
+            {
+                _isCall = true;
+                _raycastHitSignboard.collider.gameObject.TryGetComponent<IGauge>(out IGauge gage);
+
+                if (gage != null)
+                {
+                    _gauge = gage;
+                }
+                Debug.Log("åƒÇÒÇ≈Ç¢ÇÈ");
+
+                return true;
+            }
+            else if (isHitLeft)
+            {
+                _isCall = true;
+
+                _raycastHitSignboardLeft.collider.gameObject.TryGetComponent<IGauge>(out IGauge gage);
+
+                if (gage != null)
+                {
+                    _gauge = gage;
+                }
+
+                Debug.Log("åƒÇÒÇ≈Ç¢ÇÈ");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
         }
         else
         {
@@ -56,7 +120,7 @@ public class PlayerSignBoardCheck
 
     public void CountGodTime()
     {
-        if(_isGetBoard)
+        if (_isGetBoard)
         {
             _countGodTime += Time.deltaTime;
 
@@ -68,5 +132,11 @@ public class PlayerSignBoardCheck
         }
     }
 
+    public void OnDrawGizmos(Transform player, Transform model)
+    {
+        Gizmos.color = Color.green;
 
+        // Gizmos.DrawLine(player.position+ _posAdd, player.position + _posAdd + (-model.right * 10));
+        //Gizmos.DrawLine(player.position+ _posAdd, player.position + _posAdd + (model.right * 10));
+    }
 }

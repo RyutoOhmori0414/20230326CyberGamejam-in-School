@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class GManager : SingletonMonoBehaviour<GManager>
 {
@@ -28,14 +30,23 @@ public class GManager : SingletonMonoBehaviour<GManager>
     [Header("それぞれの現在の得点"), SerializeField]
     float[] _score;
 
-    [Header("何秒ごとか"), SerializeField]
+    [Header("スコアを何秒ごとにゲットするか"), SerializeField]
     float _scoreGetSpan;
 
-    [Header("現在の時間"), SerializeField]
+    [Header("スコアをゲットする現在の時間"), SerializeField]
     float _scoreGetTime;
 
     [Header("それぞれの看板の数"), SerializeField]
     int[] _signboard;
+
+    [SerializeField]
+    private UnityEvent _endEvent;
+
+    [Header("得点テキスト"), SerializeField]
+    Text[] _scoreText;
+
+    [Header("タイマーテキスト"), SerializeField]
+    Text _timerText;
 
     bool _isGame;
 
@@ -51,10 +62,15 @@ public class GManager : SingletonMonoBehaviour<GManager>
     {
         Timer();
         FeverTime();
-        Score(0);
-        Score(1);
-    }
+        Score(0); //プレイヤー１
+        Score(1); //プレイヤー２
 
+        _scoreText[0].text = _score[0].ToString();
+        _scoreText[1].text = _score[1].ToString();
+
+        _timerText.text = _timer.ToString("f1");
+    }
+      
 
     /// <summary>通行人を出すか消すか</summary>
     /// <param name="passerby">出すか消すか</param>
@@ -73,6 +89,7 @@ public class GManager : SingletonMonoBehaviour<GManager>
             //ゲーム終了
             _isGame = false;
             Debug.Log("ゲーム終了");
+            _endEvent.Invoke();
         }
         else
         {

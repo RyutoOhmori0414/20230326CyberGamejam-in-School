@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
-public class PlayerControl : MonoBehaviour
+public class PlayerControl : MonoBehaviour, IDamageble
 {
 
     [SerializeField] private PlayerInputManager _playerInput;
@@ -16,7 +17,9 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private PlayerDir _playerDir;
 
     [SerializeField] private PlayerAnimControl _animControl;
+    [SerializeField] private CameraControl _cameraControl;
 
+    [SerializeField] private PlayerAttack _attack;
 
     [SerializeField] private Transform _playerT;
 
@@ -26,8 +29,10 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] private Animator _anim;
 
+    [SerializeField] private CinemachineVirtualCamera _camera;
 
-
+    [SerializeField] private ParticleSystem _particleSystem;
+    public PlayerAttack Attack => _attack;
     public PlayerSignBoardCheck SignBoardCheck => _signBoardCheck;
     public Animator Anim => _anim;
     public PlayerAnimControl AnimControl => _animControl;
@@ -38,6 +43,9 @@ public class PlayerControl : MonoBehaviour
     public PlayerDir PlayerDir => _playerDir;
     public PlayerWallCheck WallCheck => _wallCheck;
     public Rigidbody Rb => _rb;
+    public CameraControl CameraControl => _cameraControl;
+    public ParticleSystem ParticleSystem => _particleSystem;
+    public CinemachineVirtualCamera Camera => _camera;
 
     private void Awake()
     {
@@ -50,6 +58,8 @@ public class PlayerControl : MonoBehaviour
         _wallCheck.Init(this);
 
         _playerDir.Init(this);
+        _cameraControl.Init(this);
+        _attack.Init(this);
 
     }
 
@@ -64,17 +74,29 @@ public class PlayerControl : MonoBehaviour
         //Inputの更新
         _playerInput.Update();
 
-        //移動方向を決める
-        _playerDir.SetDir();
+        if (!_attack.IsDamage)
+        {
+            //移動方向を決める
+            _playerDir.SetDir();
 
-        //モデルの方向
-        _animControl.DirSet();
+            //モデルの方向
+            _animControl.DirSet();
+
+            _animControl.ParametaSet();
+
+            if (!_animControl.IsGettingBoard)
+            {
+                _attack.Attack();
+            }
+        }
+
+        _attack.DamageTime();
+        _attack.AttackCoolTime();
 
         //速度制限
         _move.LimitSpeed();
 
-        _animControl.ParametaSet();
-
+        _signBoardCheck.Call();
     }
 
     private void FixedUpdate()
@@ -88,5 +110,14 @@ public class PlayerControl : MonoBehaviour
         Gizmos.color = Color.red;
 
         _wallCheck.OnDrawGizmos(_playerT);
+
+        _attack.OnDrawGizmos(_playerT, _modelT);
+
+        _signBoardCheck.OnDrawGizmos(_playerT, _modelT);
+    }
+
+    public void AddDamage(int dir)
+    {
+        _attack.Damage(dir);
     }
 }
