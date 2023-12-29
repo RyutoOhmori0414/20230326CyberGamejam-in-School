@@ -12,11 +12,13 @@ public class CustomPostProcess : ScriptableRendererFeature
 
     public override void Create()
     {
+        Debug.Log("CustomPostProcess.Create");
         _postProcessPass = new CustomPostProcessPass(_applyToSceneView, _shader);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        Debug.Log("CustomPostProcess.AddRenderPasses");
         _postProcessPass.Setup(renderer.cameraColorTarget, _timing);
         renderer.EnqueuePass(_postProcessPass);
     }
